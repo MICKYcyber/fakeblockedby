@@ -81,7 +81,6 @@ function createPrivacyErrorPage(options = {}) {
         --secondary-button-text-color: #8ab4f8;
         --text-color: var(--google-gray-500);
       }
-      .icon { filter: invert(1); }
     }
     html { -webkit-text-size-adjust: 100%; font-size: 125%; }
     .hidden { display: none; }
