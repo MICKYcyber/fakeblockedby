@@ -54,7 +54,6 @@ function createBlockedByAdminPage(options = {}) {
         --primary-button-text-color: var(--google-gray-900);
         --text-color: var(--google-gray-500);
       }
-      .icon { filter: invert(1); }
     }
     html { -webkit-text-size-adjust: 100%; font-size: 125%; }
     .icon {
