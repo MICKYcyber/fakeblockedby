@@ -1,40 +1,26 @@
 /**
  * Generates a Chrome-style "Your connection is not private" (SSL) interstitial.
- *
- * Usage:
- *   document.write(createPrivacyErrorPage({
- *     domain: "example.com",
- *     heading: "Your connection is not private",
- *     primaryParagraph: "Attackers might be trying to steal your information...",
- *     learnMoreText: "Learn more about this warning",
- *     learnMoreUrl: "https://support.google.com/chrome/answer/9901075",
- *     primaryButtonText: "Go back",
- *     errorCode: "net::ERR_CERT_CONTAINS_ERRORS"
- *   }));
  */
 function createPrivacyErrorPage(options = {}) {
   const defaults = {
     title: "Privacy error",
     domain: "example.com",
     heading: "Your connection is not private",
-    primaryParagraph: null, // will be auto-built if not provided
+    primaryParagraph: null,
     learnMoreText: "Learn more about this warning",
     learnMoreUrl: "#",
-    primaryButtonText: "Go back",          // was "Reload" in original
+    primaryButtonText: "Go back",
     errorCode: "net::ERR_CERT_CONTAINS_ERRORS",
-    // Advanced section
     explanationParagraph: null,
-    finalParagraph: null
+    finalParagraph: null,
+    primaryButtonAction: "window.history.back();"
   };
 
   const cfg = Object.assign({}, defaults, options);
 
-  // Auto-build the main paragraph if the user didn't supply one
   if (!cfg.primaryParagraph) {
     cfg.primaryParagraph = `Attackers might be trying to steal your information from <strong>${cfg.domain}</strong> (for example, passwords, messages, or credit cards).`;
   }
-
-  // Auto-build advanced text if not supplied
   if (!cfg.explanationParagraph) {
     cfg.explanationParagraph = `${cfg.domain} normally uses encryption to protect your information. When Chrome tried to connect to ${cfg.domain} this time, the website sent back unusual and incorrect credentials. This may happen when an attacker is trying to pretend to be ${cfg.domain}, or a Wi-Fi sign-in screen has interrupted the connection. Your information is still secure because Chrome stopped the connection before any data was exchanged.`;
   }
@@ -53,80 +39,64 @@ function createPrivacyErrorPage(options = {}) {
   <meta name="theme-color" content="#fff">
   <meta name="viewport" content="initial-scale=1, minimum-scale=1, width=device-width">
   <title>${cfg.title}</title>
-
   <style>
     a { color: var(--link-color); }
     body {
       --background-color: #fff;
       --error-code-color: var(--google-gray-700);
-      --google-blue-50: rgb(232, 240, 254);
-      --google-blue-100: rgb(210, 227, 252);
-      --google-blue-300: rgb(138, 180, 248);
       --google-blue-600: rgb(26, 115, 232);
       --google-blue-700: rgb(25, 103, 210);
-      --google-gray-100: rgb(241, 243, 244);
-      --google-gray-300: rgb(218, 220, 224);
       --google-gray-500: rgb(154, 160, 166);
-      --google-gray-50: rgb(248, 249, 250);
-      --google-gray-600: rgb(128, 134, 139);
       --google-gray-700: rgb(95, 99, 104);
-      --google-gray-800: rgb(60, 64, 67);
       --google-gray-900: rgb(32, 33, 36);
       --heading-color: var(--google-gray-900);
       --link-color: rgb(88, 88, 88);
-      --primary-button-fill-color-active: var(--google-blue-700);
       --primary-button-fill-color: var(--google-blue-600);
+      --primary-button-fill-color-active: var(--google-blue-700);
       --primary-button-text-color: #fff;
       --secondary-button-border-color: var(--google-gray-500);
       --secondary-button-fill-color: #fff;
-      --secondary-button-hover-border-color: var(--google-gray-600);
-      --secondary-button-hover-fill-color: var(--google-gray-50);
+      --secondary-button-hover-fill-color: #f8f9fa;
       --secondary-button-text-color: var(--google-gray-700);
-      --small-link-color: var(--google-gray-700);
       --text-color: var(--google-gray-700);
       background: var(--background-color);
       color: var(--text-color);
-      word-wrap: break-word;
       margin: 0;
       font-family: 'Segoe UI', Tahoma, sans-serif;
       font-size: 75%;
+      word-wrap: break-word;
     }
     @media (prefers-color-scheme: dark) {
       body {
         --background-color: var(--google-gray-900);
         --error-code-color: var(--google-gray-500);
         --heading-color: var(--google-gray-500);
-        --link-color: var(--google-blue-300);
-        --primary-button-fill-color-active: rgb(129, 162, 208);
-        --primary-button-fill-color: var(--google-blue-300);
+        --link-color: #8ab4f8;
+        --primary-button-fill-color: #8ab4f8;
+        --primary-button-fill-color-active: #8ab4f8;
         --primary-button-text-color: var(--google-gray-900);
-        --secondary-button-border-color: var(--google-gray-700);
+        --secondary-button-border-color: #5f6368;
         --secondary-button-fill-color: var(--google-gray-900);
-        --secondary-button-hover-fill-color: rgb(48, 51, 57);
-        --secondary-button-text-color: var(--google-blue-300);
-        --small-link-color: var(--google-blue-300);
+        --secondary-button-hover-fill-color: #3c4043;
+        --secondary-button-text-color: #8ab4f8;
         --text-color: var(--google-gray-500);
       }
+      .icon { filter: invert(1); }
     }
-    .hidden { display: none; }
     html { -webkit-text-size-adjust: 100%; font-size: 125%; }
+    .hidden { display: none; }
+
+    /* Real SSL / Privacy Error icon */
     .icon {
       height: 72px;
-      margin: 0 0 40px;
       width: 72px;
-      background: #5f6368;
-      border-radius: 8px;
-      position: relative;
+      margin: 0 0 40px;
+      background-repeat: no-repeat;
+      background-size: 100%;
       display: inline-block;
+      background-image: url("data:image/png;base64,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");
     }
-    .icon::after {
-      content: "🔒";
-      font-size: 36px;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
+
     button {
       border: 0;
       border-radius: 20px;
@@ -137,13 +107,10 @@ function createPrivacyErrorPage(options = {}) {
       font-size: .875em;
       margin: 0;
       padding: 8px 16px;
-      transition: box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1);
-      user-select: none;
       background: var(--primary-button-fill-color);
     }
     button:active {
       background: var(--primary-button-fill-color-active);
-      outline: 0;
     }
     .secondary-button {
       background: var(--secondary-button-fill-color);
@@ -155,7 +122,6 @@ function createPrivacyErrorPage(options = {}) {
     }
     .secondary-button:hover {
       background: var(--secondary-button-hover-fill-color);
-      border-color: var(--secondary-button-hover-border-color);
     }
     .error-code {
       color: var(--error-code-color);
@@ -169,17 +135,13 @@ function createPrivacyErrorPage(options = {}) {
       font-size: 1.6em;
       font-weight: normal;
       line-height: 1.25em;
-      margin-bottom: 16px;
-      margin-top: 0;
+      margin: 0 0 16px;
     }
     .interstitial-wrapper {
-      box-sizing: border-box;
-      font-size: 1em;
-      line-height: 1.6em;
-      margin: 14vh auto 0;
       max-width: 600px;
-      width: 100%;
+      margin: 14vh auto 0;
       padding: 0 24px;
+      line-height: 1.6em;
     }
     .nav-wrapper {
       margin-top: 51px;
@@ -189,10 +151,6 @@ function createPrivacyErrorPage(options = {}) {
       content: '';
       display: table;
       width: 100%;
-    }
-    .small-link {
-      color: var(--small-link-color);
-      font-size: .875em;
     }
     #details {
       margin: 20px 0 50px;
@@ -207,7 +165,6 @@ function createPrivacyErrorPage(options = {}) {
         padding: 16px 24px;
         margin-top: 12px;
       }
-      .interstitial-wrapper { padding: 0 5%; }
     }
   </style>
 </head>
@@ -219,42 +176,29 @@ function createPrivacyErrorPage(options = {}) {
         <h1>${cfg.heading}</h1>
         <p>${paragraphWithLink}</p>
         <div id="debugging">
-          <div id="error-code" class="error-code" role="button" aria-expanded="false">${cfg.errorCode}</div>
+          <div id="error-code" class="error-code">${cfg.errorCode}</div>
         </div>
       </div>
     </div>
-
     <div class="nav-wrapper">
       <button id="primary-button">${cfg.primaryButtonText}</button>
       <button id="details-button" class="secondary-button small-link">Advanced</button>
     </div>
-
     <div id="details" class="hidden">
       <p>${cfg.explanationParagraph}</p>
       <p id="final-paragraph">${cfg.finalParagraph}</p>
     </div>
   </div>
-
   <script>
-    // Primary button → go back one page
     document.getElementById('primary-button').addEventListener('click', function () {
-      if (window.history.length > 1) {
-        window.history.back();
-      } else {
-        window.location.href = 'about:blank';
-      }
+      ${cfg.primaryButtonAction}
     });
-
-    // Advanced / Details toggle
     const detailsBtn = document.getElementById('details-button');
     const detailsPanel = document.getElementById('details');
     detailsBtn.addEventListener('click', function () {
       const isHidden = detailsPanel.classList.toggle('hidden');
       detailsBtn.textContent = isHidden ? 'Advanced' : 'Hide advanced';
-      detailsBtn.setAttribute('aria-expanded', !isHidden);
     });
-
-    // Optional: make error code also toggle details
     document.getElementById('error-code').addEventListener('click', function () {
       detailsBtn.click();
     });
@@ -263,7 +207,6 @@ function createPrivacyErrorPage(options = {}) {
 </html>`;
 }
 
-// Expose it
 if (typeof window !== 'undefined') {
   window.createPrivacyErrorPage = createPrivacyErrorPage;
 }
